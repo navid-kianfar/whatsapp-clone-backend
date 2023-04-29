@@ -14,6 +14,10 @@ export class AppService {
     return this.waService.qr;
   }
 
+  getAvatar(id: string): Promise<string> {
+    return this.waService.client.getProfilePicUrl(id);
+  }
+
   getChats(): Promise<WAWebJS.Chat[]> {
     return this.waService.client.getChats();
   }

@@ -17,6 +17,13 @@ export class AppController {
     };
   }
 
+  @Get('avatar/:id')
+  async getAvatar(@Param('id') id: string) {
+    return {
+      avatar: await this.appService.getAvatar(id),
+    };
+  }
+
   @Post('chat/:id/messages')
   getMessages(@Param('id') id: string, @Body() model: any) {
     return this.appService.getMessages(id, model);
