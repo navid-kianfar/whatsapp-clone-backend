@@ -1,7 +1,8 @@
 # compiled output
 /dist
 /node_modules
-
+/.wwebjs_auth
+/db/data
 # Logs
 logs
 *.log

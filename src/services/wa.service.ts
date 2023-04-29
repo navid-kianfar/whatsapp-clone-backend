@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import mongoose from 'mongoose';
-import { Client, RemoteAuth } from 'whatsapp-web.js';
+import { Client, RemoteAuth, LocalAuth } from 'whatsapp-web.js';
 import { MongoStore } from 'wwebjs-mongo';
+import { toDataURL } from 'qrcode';
+import WAWebJS from 'whatsapp-web.js';
 
 @Injectable()
 export class WAService {
@@ -23,6 +25,7 @@ export class WAService {
           store: new MongoStore({ mongoose }),
           backupSyncIntervalMs: 300000,
         }),
+        // authStrategy: new LocalAuth(),
       });
     } catch (err) {
       console.error(err);
@@ -50,12 +53,12 @@ export class WAService {
     this.client.on('contact_changed', this.onContactChanged);
     this.client.initialize();
   }
-  private onQR = (qr: string) => {
-    this._qrCode = qr;
-    // Generate and scan this code with your phone
+  private onQR = async (qr: string) => {
+    this._qrCode = await toDataURL(qr);
     console.log('onQR', qr);
   };
   private onReady = () => {
+    this._qrCode = '';
     console.log('onReady');
   };
   private onMessage = (msg) => {
