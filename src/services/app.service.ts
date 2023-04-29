@@ -18,12 +18,9 @@ export class AppService {
     return this.waService.client.getChats();
   }
 
-  getMessages(model: any): Promise<WAWebJS.Message[]> {
-    return this.waService.client.searchMessages('', {
-      chatId: model.chatId,
-      page: model.page,
-      limit: model.limit,
-    });
+  async getMessages(id, model: any): Promise<WAWebJS.Message[]> {
+    const chat = await this.waService.client.getChatById(id);
+    return await chat.fetchMessages(model);
   }
 
   searchMessages(model: any): Promise<WAWebJS.Message[]> {
