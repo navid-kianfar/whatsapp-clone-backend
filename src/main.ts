@@ -1,9 +1,9 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { AppService } from './services/app.service';
+import { WhatsappCloneModule } from './whatsapp-clone.module';
+import { AppService } from './app/app.service';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(WhatsappCloneModule);
   const appService = app.get<AppService>(AppService);
   app.enableCors();
   await app.listen(3100);

@@ -1,10 +1,10 @@
 import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { Client, LocalAuth } from 'whatsapp-web.js';
 import { toDataURL } from 'qrcode';
-import { SocketService } from './socket.service';
+import { SocketService } from '../socket/socket.service';
 
 @Injectable()
-export class WAService {
+export class WhatsAppService {
   client: Client;
   private _logger = new ConsoleLogger('WAService');
   private _qrCode = '';

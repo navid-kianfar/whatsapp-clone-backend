@@ -1,11 +1,11 @@
 import { ConsoleLogger, Injectable } from '@nestjs/common';
-import { WAService } from './wa.service';
+import { WhatsAppService } from '../whatsapp/whatsapp.service';
 import WAWebJS from 'whatsapp-web.js';
 
 @Injectable()
 export class AppService {
   private _logger = new ConsoleLogger('AppService');
-  constructor(private readonly waService: WAService) {}
+  constructor(private readonly waService: WhatsAppService) {}
 
   init() {
     this.waService.initClient()
