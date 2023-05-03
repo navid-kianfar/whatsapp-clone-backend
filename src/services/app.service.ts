@@ -1,13 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { WAService } from './wa.service';
 import WAWebJS from 'whatsapp-web.js';
 
 @Injectable()
 export class AppService {
+  private _logger = new ConsoleLogger('AppService');
   constructor(private readonly waService: WAService) {}
 
-  async init() {
-    await this.waService.init();
+  init() {
+    this.waService.initClient()
+    .catch((err) => {
+      this._logger.error(err.message);
+    })
+    .then(() => {
+      this._logger.log('Client released');
+    });
   }
 
   getQR() {

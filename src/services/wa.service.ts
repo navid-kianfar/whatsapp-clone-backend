@@ -1,39 +1,27 @@
-import { Injectable } from '@nestjs/common';
-import mongoose from 'mongoose';
-import { Client, RemoteAuth, LocalAuth } from 'whatsapp-web.js';
-import { MongoStore } from 'wwebjs-mongo';
+import { ConsoleLogger, Injectable } from '@nestjs/common';
+import { Client, LocalAuth } from 'whatsapp-web.js';
 import { toDataURL } from 'qrcode';
-import WAWebJS from 'whatsapp-web.js';
+import { SocketService } from './socket.service';
 
 @Injectable()
 export class WAService {
   client: Client;
+  private _logger = new ConsoleLogger('WAService');
   private _qrCode = '';
+
+  constructor(
+    private readonly socketService: SocketService
+  ){}
 
   get qr(): string {
     return this._qrCode;
   }
 
-  private async configure() {
-    try {
-      const mongoURI =
-        'mongodb://wwebjs_user:wwebjs_passwd@localhost:27017/wwebjs';
+  initClient(): Promise<void> {
+    this._logger.log('Client init start');
+    const authStrategy = new LocalAuth();
+    this.client = new Client({ authStrategy });
 
-      await mongoose.connect(mongoURI);
-      this.client = new Client({
-        authStrategy: new RemoteAuth({
-          store: new MongoStore({ mongoose }),
-          backupSyncIntervalMs: 300000,
-        }),
-        // authStrategy: new LocalAuth(),
-      });
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  async init() {
-    await this.configure();
     this.client.on('qr', this.onQR);
     this.client.on('ready', this.onReady);
     this.client.on('message', this.onMessage);
@@ -51,59 +39,67 @@ export class WAService {
     this.client.on('change_state', this.onStateChanged);
     this.client.on('disconnected', this.onDisconnected);
     this.client.on('contact_changed', this.onContactChanged);
-    this.client.initialize();
+    const promise = this.client.initialize();
+    this._logger.log('Client init done');
+    return promise;
   }
   private onQR = async (qr: string) => {
     this._qrCode = await toDataURL(qr);
-    console.log('onQR', qr);
+    this.socketService.send('qr', { qr });
+    this._logger.log('QR code sent to client');
   };
   private onReady = () => {
     this._qrCode = '';
-    console.log('onReady');
-  };
-  private onMessage = (msg) => {
-    console.log('onMessage', msg);
-  };
-  private onMessageCreate = (msg) => {
-    console.log('onMessageCreate', msg);
-  };
-  private onMessageRevokeEveryone = (after, before) => {
-    console.log('onMessageRevokeEveryone', after, before);
-  };
-  private onMessageRevokeMe = (msg) => {
-    console.log('onMessageRevokeEveryone', msg);
-  };
-  private onLoadingScreen = (percent, msg) => {
-    console.log('onLoadingScreen', percent, msg);
-  };
-  private onMessageAck = (msg, ack) => {
-    console.log('onMessageAck', msg, ack);
+    this.socketService.send('ready');
+    this._logger.log('Client is ready');
   };
   private onAuthenticated = () => {
-    console.log('onAuthenticated');
+    this.socketService.send('authenticated');
+    this._logger.log('Client is authenticated');
   };
   private onAuthFailure = (msg) => {
-    console.log('onAuthFailure', msg);
+    this.socketService.send('authentication_failed');
+    this._logger.log('Client is authentication failed', msg);
+  };
+  private onLoadingScreen = (percent, msg) => {
+    this.socketService.send('loading', {percent, msg});
+    this._logger.log('Client is loading');
+  };
+  private onMessage = (msg) => {
+    this.socketService.send('message', { msg });
+    this._logger.log('Message has been recived', msg);
+  };
+  private onMessageCreate = (msg) => {
+    this._logger.log('onMessageCreate', msg);
+  };
+  private onMessageRevokeEveryone = (after, before) => {
+    this._logger.log('onMessageRevokeEveryone', after, before);
+  };
+  private onMessageRevokeMe = (msg) => {
+    this._logger.log('onMessageRevokeEveryone', msg);
+  };
+  private onMessageAck = (msg, ack) => {
+    this._logger.log('onMessageAck', msg, ack);
   };
   private onGroupJoin = (notification) => {
-    console.log('onGroupJoin', notification);
+    this._logger.log('onGroupJoin', notification);
   };
   private onGroupLeave = (notification) => {
-    console.log('onGroupLeave', notification);
+    this._logger.log('onGroupLeave', notification);
   };
   private onGroupUpdate = (notification) => {
-    console.log('onGroupUpdate', notification);
+    this._logger.log('onGroupUpdate', notification);
   };
   private onGroupAdminChanged = (notification) => {
-    console.log('onGroupAdminChanged', notification);
+    this._logger.log('onGroupAdminChanged', notification);
   };
   private onStateChanged = (state) => {
-    console.log('onStateChanged', state);
+    this._logger.log('onStateChanged', state);
   };
   private onDisconnected = (reason) => {
-    console.log('onDisconnected', reason);
+    this._logger.log('onDisconnected', reason);
   };
   private onContactChanged = (message, oldId, newId, isContact) => {
-    console.log('onContactChanged', message, oldId, newId, isContact);
+    this._logger.log('onContactChanged', message, oldId, newId, isContact);
   };
 }
