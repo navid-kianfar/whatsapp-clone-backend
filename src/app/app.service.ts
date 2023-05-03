@@ -22,34 +22,54 @@ export class AppService {
     return this.waService.qr;
   }
 
-  getAvatar(id: string): Promise<string> {
-    return this.waService.client.getProfilePicUrl(id);
+  async getAvatar(id: string): Promise<string> {
+    try {
+      return await this.waService.client.getProfilePicUrl(id);
+    } catch (err) {
+      return '';
+    }    
   }
 
-  getChats(): Promise<WAWebJS.Chat[]> {
-    return this.waService.client.getChats();
+  async getChats(): Promise<WAWebJS.Chat[]> {
+    try {
+      return await this.waService.client.getChats();
+    } catch (err) {
+      return [];
+    }
   }
 
   async getMessages(id, model: any): Promise<WAWebJS.Message[]> {
-    const chat = await this.waService.client.getChatById(id);
-    return await chat.fetchMessages(model);
+    try {
+      const chat = await this.waService.client.getChatById(id);
+      return await chat.fetchMessages(model);
+    } catch (err) {
+      return [];
+    }
   }
 
-  searchMessages(model: any): Promise<WAWebJS.Message[]> {
-    return this.waService.client.searchMessages(model.query, {
-      chatId: model.chatId,
-      page: model.page,
-      limit: model.limit,
-    });
+  async searchMessages(model: any): Promise<WAWebJS.Message[]> {
+    try {
+      return await this.waService.client.searchMessages(model.query, {
+        chatId: model.chatId,
+        page: model.page,
+        limit: model.limit,
+      });
+    } catch (err) {
+      return [];
+    }
   }
 
   async sendMessage(id: string, model: any): Promise<WAWebJS.Message> {
-    if (model.message) {
-      return this.waService.client.sendMessage(id, {
-        body: model.message,
-        contentType: 'text',
-      } as any);
+    try {
+      if (model.message) {
+        return await this.waService.client.sendMessage(id, {
+          body: model.message,
+          contentType: 'text',
+        } as any);
+      }
+      throw new Error('Method not implemented.');
+    } catch (err) {
+      return undefined;
     }
-    throw new Error('Method not implemented.');
   }
 }
