@@ -64,11 +64,11 @@ export class WhatsAppService {
   };
   private onLoadingScreen = (percent, msg) => {
     this.socketService.send('loading', { percent, msg });
-    this._logger.log('Client is loading');
+    this._logger.log(`Client is loading: ${percent}; ${msg}`);
   };
   private onMessage = (msg) => {
     this.socketService.send('message', { msg });
-    this._logger.log('Message has been recived', msg);
+    this._logger.log(`Message has been recived: ${msg}`, msg);
   };
   private onMessageCreate = (msg) => {
     this._logger.log('onMessageCreate', msg);
