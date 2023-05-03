@@ -46,7 +46,7 @@ export class WhatsAppService {
   }
   private onQR = async (qr: string) => {
     this._qrCode = await toDataURL(qr);
-    this.socketService.send('qr', { qr });
+    this.socketService.send('qr', { qr: this._qrCode });
     this._logger.log('QR code sent to client');
   };
   private onReady = () => {
