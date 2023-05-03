@@ -9,9 +9,7 @@ export class WhatsAppService {
   private _logger = new ConsoleLogger('WAService');
   private _qrCode = '';
 
-  constructor(
-    private readonly socketService: SocketService
-  ){}
+  constructor(private readonly socketService: SocketService) {}
 
   get qr(): string {
     return this._qrCode;
@@ -19,8 +17,11 @@ export class WhatsAppService {
 
   initClient(): Promise<void> {
     this._logger.log('Client init start');
-    const authStrategy = new LocalAuth();
-    this.client = new Client({ authStrategy });
+    this.client = new Client({
+      authStrategy: new LocalAuth({
+        dataPath: './data/auth',
+      }),
+    });
 
     this.client.on('qr', this.onQR);
     this.client.on('ready', this.onReady);
@@ -62,7 +63,7 @@ export class WhatsAppService {
     this._logger.log('Client is authentication failed', msg);
   };
   private onLoadingScreen = (percent, msg) => {
-    this.socketService.send('loading', {percent, msg});
+    this.socketService.send('loading', { percent, msg });
     this._logger.log('Client is loading');
   };
   private onMessage = (msg) => {

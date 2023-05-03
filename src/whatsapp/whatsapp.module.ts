@@ -3,8 +3,8 @@ import { WhatsAppService } from './whatsapp.service';
 import { SocketModule } from '../socket/socket.module';
 
 @Module({
-    imports: [SocketModule],
-    providers: [WhatsAppService],
-    exports: [WhatsAppService],
+  imports: [SocketModule],
+  providers: [WhatsAppService],
+  exports: [WhatsAppService],
 })
 export class WhatsappModule {}

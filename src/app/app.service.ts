@@ -8,13 +8,14 @@ export class AppService {
   constructor(private readonly waService: WhatsAppService) {}
 
   init() {
-    this.waService.initClient()
-    .catch((err) => {
-      this._logger.error(err.message);
-    })
-    .then(() => {
-      this._logger.log('Client released');
-    });
+    this.waService
+      .initClient()
+      .catch((err) => {
+        this._logger.error(err.message);
+      })
+      .then(() => {
+        this._logger.log('Client released');
+      });
   }
 
   getQR() {
